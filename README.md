@@ -54,12 +54,12 @@ The system is built around a true **Multi-Agent System (MAS)** architecture — 
 Lumina v5 replaces the v4 procedural orchestrator with a fully async Pub/Sub architecture. All inter-agent communication goes through a single `EventBus` — agents never call each other directly.
 
 ```
-                          ┌─────────────────────────────────────────┐
+                          ┌────────────────────────────────────────-─┐
                           │             EventBus (Pub/Sub)           │
                           │                                          │
   Camera Frame ──────────►│ vision/new_frame                         │
                           │ hardware/emergency_stop  (high priority) │
-  User Query  ──────────►│ system/query_received                    │
+  User Query  ──────────► │ system/query_received                    │
                           │ memory/candidates_ready                  │
                           │ memory/write_approved                    │
                           │ memory/search_result                     │
@@ -70,7 +70,7 @@ Lumina v5 replaces the v4 procedural orchestrator with a fully async Pub/Sub arc
                           │ navigation/route_final   ───────────────►│ WebSocket
                           │ system/agent_log         ───────────────►│ Clients
                           │ system/request_camera_pan                │
-                          └─────────────────────────────────────────┘
+                          └─────────────────────────────-────────────┘
 ```
 
 **Why Pub/Sub?**
@@ -91,11 +91,11 @@ The EventBus supports:
 ```
 FAST LOOP (30 FPS — ~33ms budget, NEVER awaits LLM)
 ┌─────────────────────────────────────────────────────────────────────┐
-│  Camera capture → ORB-SLAM heading → YOLO detect → IoU track       │
+│  Camera capture → ORB-SLAM heading → YOLO detect → IoU track        │
 │  → RANSAC depth calibration → 3D back-projection                    │
 │  → BEV occupancy grid update → SafetyCortex                         │
 │  → publish "vision/new_frame"      (triggers ArchivistAgent)        │
-│  → publish "hardware/emergency_stop" if obstacle < 1m (HIGH PRIO)  │
+│  → publish "hardware/emergency_stop" if obstacle < 1m (HIGH PRIO)   │
 └─────────────────────────────────────────────────────────────────────┘
 
 SLOW LOOP (1–3 FPS equivalent — EventBus async dispatcher)
